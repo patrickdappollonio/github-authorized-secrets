@@ -495,6 +495,8 @@ port = 8080
                 enable_tls: Some(false),
                 tls_cert_path: None,
                 tls_key_path: None,
+                local_testing_mode: None,
+                local_testing_num_keys: None,
             },
             validation: None,
             security: Some(SecurityConfig {

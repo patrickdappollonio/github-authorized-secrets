@@ -61,7 +61,7 @@ pub async fn get_secrets(
     let validator = InputValidator::new(state.config.is_production_mode());
     let auditor = SecurityAuditor::new(
         state.config.get_security_config().detailed_audit_logging,
-        None,
+        Some(state.config.get_security_config().into()),
     );
 
     // Extract client information for audit logging
@@ -155,7 +155,7 @@ pub async fn list_repositories(
     let validator = InputValidator::new(state.config.is_production_mode());
     let auditor = SecurityAuditor::new(
         state.config.get_security_config().detailed_audit_logging,
-        None,
+        Some(state.config.get_security_config().into()),
     );
 
     // Extract client information for audit logging
@@ -230,7 +230,7 @@ pub async fn security_audit(
     let validator = InputValidator::new(state.config.is_production_mode());
     let auditor = SecurityAuditor::new(
         state.config.get_security_config().detailed_audit_logging,
-        None,
+        Some(state.config.get_security_config().into()),
     );
 
     // Extract client information
