@@ -236,14 +236,22 @@ mod tests {
     }
 
     #[test]
-    #[ignore] // TODO: Fix JWT/JWK API compatibility issues
     fn test_jwk_creation() {
         let signer = JwtSigner::new().unwrap();
         let jwk = signer.create_jwk().unwrap();
 
-        // assert_eq!(jwk.common.key_type, Some(jsonwebtoken::jwk::KeyType::RSA));
-        // assert_eq!(jwk.common.key_use, Some(jsonwebtoken::jwk::PublicKeyUse::Signature));
+        // Check that the key type is RSA (it's in the algorithm parameters, not common)
+        match &jwk.algorithm {
+            jsonwebtoken::jwk::AlgorithmParameters::RSA(rsa_params) => {
+                assert_eq!(rsa_params.key_type, jsonwebtoken::jwk::RSAKeyType::RSA);
+            }
+            _ => panic!("Expected RSA algorithm parameters"),
+        }
+
+        // Check the common parameters
+        assert_eq!(jwk.common.public_key_use, Some(jsonwebtoken::jwk::PublicKeyUse::Signature));
         assert_eq!(jwk.common.key_id.as_ref(), Some(&signer.key_pair.key_id));
+        assert_eq!(jwk.common.key_algorithm, Some(jsonwebtoken::jwk::KeyAlgorithm::RS256));
     }
 
     #[test]
