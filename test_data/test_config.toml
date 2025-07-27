@@ -1,0 +1,23 @@
+[server]
+host = "127.0.0.1"
+port = 8080
+jwt_cache_duration = 300
+
+[validation]
+required_claims = ["repository", "repository_owner"]
+allowed_issuers = ["https://token.actions.githubusercontent.com"]
+max_token_age = 300
+
+[github.octocat]
+api_key = "test_api_key_123"
+database_url = "postgresql://test:pass@localhost/testdb"
+deployment_token = "ghp_test_deployment_token"
+
+[acme-corp.web-app]
+deploy_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ test_key"
+webhook_secret = "test_webhook_secret"
+redis_url = "redis://test-redis:6379"
+
+[organization.private-repo]
+api_token = "secret_api_token"
+encryption_key = "test_encryption_key_32_bytes_long"

@@ -1,0 +1,12 @@
+[server]
+# Missing required port field
+host = "127.0.0.1"
+jwt_cache_duration = "invalid_duration"
+
+[invalid-repository-name]
+# Repository name should follow owner.repo format
+secret = "value"
+
+[github.test]
+# Valid repository configuration
+api_key = "test_key"
