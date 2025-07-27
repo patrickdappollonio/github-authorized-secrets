@@ -8,6 +8,9 @@ use github_authorized_secrets::{
 };
 use tracing::info;
 
+#[cfg(test)]
+use serial_test::serial;
+
 #[derive(Parser)]
 #[command(name = "github-authorized-secrets")]
 #[command(about = "GitHub Actions authorized secrets management")]
@@ -563,6 +566,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_invalid_arguments() {
         // Clean up any HOST environment variable first
         std::env::remove_var("HOST");
@@ -589,6 +593,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn test_environment_variable_support() {
         // Clean up first to ensure test isolation
         std::env::remove_var("HOST");
