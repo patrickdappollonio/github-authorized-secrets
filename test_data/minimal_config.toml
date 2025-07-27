@@ -1,0 +1,9 @@
+[server]
+host = "127.0.0.1"
+port = 8080
+jwt_cache_duration = 300
+
+[github.octocat]
+api_key = "your_api_key_here"
+database_url = "postgresql://user:pass@localhost/db"
+deployment_token = "ghp_xxxxxxxxxxxx"
