@@ -84,6 +84,9 @@ pub enum Cli {
         /// Server host to use for JWKs generation (defaults to localhost:8080)
         #[arg(long, default_value = "localhost:8080")]
         server: String,
+        /// Output only the token (useful for scripting)
+        #[arg(long)]
+        token_only: bool,
     },
 }
 
@@ -145,6 +148,7 @@ async fn main() -> Result<(), AppError> {
             sha,
             audience,
             server,
+            token_only,
         } => handle_sign_command(
             repository,
             owner,
@@ -154,6 +158,7 @@ async fn main() -> Result<(), AppError> {
             sha,
             audience,
             server,
+            token_only,
         ).await,
     }
 }
@@ -229,6 +234,7 @@ async fn handle_sign_command(
     sha: Option<String>,
     audience: Option<String>,
     server: String,
+    token_only: bool,
 ) -> Result<(), AppError> {
     // Extract owner from repository if not provided
     let repository_owner = match owner {
@@ -279,31 +285,35 @@ async fn handle_sign_command(
     // Sign the token
     let token = signer.sign_token(&claims).map_err(|e| AppError::Auth(e))?;
 
-    println!("Generated JWT Token:");
-    println!("{}", token);
-    println!();
+    if token_only {
+        println!("{}", token);
+    } else {
+        println!("Generated JWT Token:");
+        println!("{}", token);
+        println!();
 
-    println!("Token Claims:");
-    println!("  Repository: {}", claims.repository);
-    println!("  Owner: {}", claims.repository_owner);
-    println!("  Workflow: {}", claims.workflow);
-    println!("  Actor: {}", claims.actor);
-    println!("  Ref: {}", claims.ref_);
-    println!("  SHA: {}", claims.sha);
-    println!("  Audience: {}", claims.aud);
-    println!("  Expires: {}", chrono::DateTime::from_timestamp(claims.exp, 0)
-        .map(|dt| dt.format("%Y-%m-%d %H:%M:%S UTC").to_string())
-        .unwrap_or("Invalid timestamp".to_string()));
+        println!("Token Claims:");
+        println!("  Repository: {}", claims.repository);
+        println!("  Owner: {}", claims.repository_owner);
+        println!("  Workflow: {}", claims.workflow);
+        println!("  Actor: {}", claims.actor);
+        println!("  Ref: {}", claims.ref_);
+        println!("  SHA: {}", claims.sha);
+        println!("  Audience: {}", claims.aud);
+        println!("  Expires: {}", chrono::DateTime::from_timestamp(claims.exp, 0)
+            .map(|dt| dt.format("%Y-%m-%d %H:%M:%S UTC").to_string())
+            .unwrap_or("Invalid timestamp".to_string()));
 
-    println!();
-    println!("JWKs for validation (use this on your server):");
-    println!("{}", local_jwks.to_json().map_err(|e| AppError::Auth(e))?);
+        println!();
+        println!("JWKs for validation (use this on your server):");
+        println!("{}", local_jwks.to_json().map_err(|e| AppError::Auth(e))?);
 
-    println!();
-    println!("Key ID: {}", signer.key_id());
-    println!();
-    println!("To test this token, start the server with --local-testing and use:");
-    println!("  curl -X POST -H 'Authorization: Bearer {}' http://{}/secrets", token, server);
+        println!();
+        println!("Key ID: {}", signer.key_id());
+        println!();
+        println!("To test this token, start the server with --local-testing and use:");
+        println!("  curl -X POST -H 'Authorization: Bearer {}' http://{}/secrets", token, server);
+    }
 
     Ok(())
 }
@@ -322,7 +332,7 @@ mod tests {
         let cli = Cli::try_parse_from(args).unwrap();
 
         match cli {
-            Cli::Server { config } => {
+            Cli::Server { config, .. } => {
                 assert_eq!(config, "config.toml");
             }
             _ => panic!("Expected Server command"),
@@ -333,7 +343,7 @@ mod tests {
         let cli = Cli::try_parse_from(args).unwrap();
 
         match cli {
-            Cli::Server { config } => {
+            Cli::Server { config, .. } => {
                 assert_eq!(config, "custom.toml");
             }
             _ => panic!("Expected Server command"),
@@ -344,7 +354,7 @@ mod tests {
         let cli = Cli::try_parse_from(args).unwrap();
 
         match cli {
-            Cli::Server { config } => {
+            Cli::Server { config, .. } => {
                 assert_eq!(config, "short.toml");
             }
             _ => panic!("Expected Server command"),
@@ -718,5 +728,120 @@ mod tests {
         let args = vec!["github-authorized-secrets", "pull", "--help"];
         let result = Cli::try_parse_from(args);
         assert!(result.is_err()); // Help flag causes early exit
+    }
+
+    #[test]
+    fn test_sign_command_argument_parsing() {
+        // Test basic sign command
+        let args = vec!["github-authorized-secrets", "sign", "--repository", "owner/repo"];
+        let cli = Cli::try_parse_from(args).unwrap();
+
+        match cli {
+            Cli::Sign { repository, owner, workflow, actor, ref_name, sha, audience, server, token_only } => {
+                assert_eq!(repository, "owner/repo");
+                assert!(owner.is_none());
+                assert!(workflow.is_none());
+                assert!(actor.is_none());
+                assert!(ref_name.is_none());
+                assert!(sha.is_none());
+                assert!(audience.is_none());
+                assert_eq!(server, "localhost:8080"); // default
+                assert!(!token_only); // default
+            }
+            _ => panic!("Expected Sign command"),
+        }
+
+        // Test sign with all options including token_only
+        let args = vec![
+            "github-authorized-secrets", "sign",
+            "--repository", "test/repo",
+            "--owner", "test-owner",
+            "--workflow", "test-workflow",
+            "--actor", "test-actor",
+            "--ref-name", "refs/heads/main",
+            "--sha", "abc123",
+            "--audience", "test-audience",
+            "--server", "example.com:9000",
+            "--token-only",
+        ];
+        let cli = Cli::try_parse_from(args).unwrap();
+
+        match cli {
+            Cli::Sign { repository, owner, workflow, actor, ref_name, sha, audience, server, token_only } => {
+                assert_eq!(repository, "test/repo");
+                assert_eq!(owner, Some("test-owner".to_string()));
+                assert_eq!(workflow, Some("test-workflow".to_string()));
+                assert_eq!(actor, Some("test-actor".to_string()));
+                assert_eq!(ref_name, Some("refs/heads/main".to_string()));
+                assert_eq!(sha, Some("abc123".to_string()));
+                assert_eq!(audience, Some("test-audience".to_string()));
+                assert_eq!(server, "example.com:9000");
+                assert!(token_only);
+            }
+            _ => panic!("Expected Sign command"),
+        }
+
+        // Test sign with short options
+        let args = vec![
+            "github-authorized-secrets", "sign",
+            "-r", "short/repo",
+            "-o", "short-owner",
+            "-w", "short-workflow",
+            "-a", "short-actor",
+        ];
+        let cli = Cli::try_parse_from(args).unwrap();
+
+        match cli {
+            Cli::Sign { repository, owner, workflow, actor, token_only, .. } => {
+                assert_eq!(repository, "short/repo");
+                assert_eq!(owner, Some("short-owner".to_string()));
+                assert_eq!(workflow, Some("short-workflow".to_string()));
+                assert_eq!(actor, Some("short-actor".to_string()));
+                assert!(!token_only); // default when not specified
+            }
+            _ => panic!("Expected Sign command"),
+        }
+    }
+
+    #[test]
+    fn test_sign_command_token_only_flag() {
+        // Test token_only flag is false by default
+        let args = vec!["github-authorized-secrets", "sign", "--repository", "owner/repo"];
+        let cli = Cli::try_parse_from(args).unwrap();
+
+        match cli {
+            Cli::Sign { token_only, .. } => {
+                assert!(!token_only);
+            }
+            _ => panic!("Expected Sign command"),
+        }
+
+        // Test token_only flag can be set
+        let args = vec![
+            "github-authorized-secrets", "sign",
+            "--repository", "owner/repo",
+            "--token-only",
+        ];
+        let cli = Cli::try_parse_from(args).unwrap();
+
+        match cli {
+            Cli::Sign { token_only, .. } => {
+                assert!(token_only);
+            }
+            _ => panic!("Expected Sign command"),
+        }
+    }
+
+    #[test]
+    fn test_sign_command_required_repository() {
+        // Test that repository is required
+        let args = vec!["github-authorized-secrets", "sign"];
+        let result = Cli::try_parse_from(args);
+        assert!(result.is_err());
+
+        // Test that repository must be provided
+        let args = vec!["github-authorized-secrets", "sign", "--token-only"];
+        let result = Cli::try_parse_from(args);
+        assert!(result.is_err());
     }
 }

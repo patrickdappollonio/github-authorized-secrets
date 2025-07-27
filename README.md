@@ -292,6 +292,13 @@ The `sign` command outputs:
 - **JWKs JSON**: Public keys for server validation
 - **Test Command**: curl example you can copy/paste
 
+For scripting, use the `--token-only` flag to output just the token:
+
+```bash
+# Get only the token (perfect for shell variables)
+TOKEN=$(./github-authorized-secrets sign --repository "github/octocat" --token-only)
+```
+
 #### 3. Test the Complete Flow
 
 Here's a complete local testing workflow:
@@ -302,7 +309,7 @@ Here's a complete local testing workflow:
 
 # Terminal 2: Create a test token and use it
 # Create token for a repository you have configured
-TOKEN=$(./github-authorized-secrets sign --repository "github/octocat" | grep -A1 "Generated JWT Token:" | tail -1)
+TOKEN=$(./github-authorized-secrets sign --repository "github/octocat" --token-only)
 
 # Test the health endpoint
 curl http://localhost:8080/health
@@ -356,7 +363,7 @@ Tokens expire after 10 minutes by default. Test token validation:
 
 ```bash
 # Create a token
-TOKEN=$(./github-authorized-secrets sign --repository "test/repo" | grep -A1 "Generated JWT Token:" | tail -1)
+TOKEN=$(./github-authorized-secrets sign --repository "test/repo" --token-only)
 
 # Use it immediately (should work)
 curl -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8080/secrets
@@ -383,7 +390,7 @@ sleep 2
 for repo in "github/octocat" "myorg/frontend" "myorg/backend"; do
     echo "Testing repository: $repo"
 
-    TOKEN=$(./github-authorized-secrets sign --repository "$repo" | grep -A1 "Generated JWT Token:" | tail -1)
+    TOKEN=$(./github-authorized-secrets sign --repository "$repo" --token-only)
 
     if curl -f -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8080/secrets > /dev/null; then
         echo "✅ $repo: Success"
