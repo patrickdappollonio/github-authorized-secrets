@@ -29,7 +29,7 @@ GitHub Authorized Secrets provides a secure way to manage secrets for GitHub Act
 
 ```bash
 # Download the latest release for your platform
-curl -L https://github.com/your-org/github-authorized-secrets/releases/latest/download/github-authorized-secrets-linux-x86_64.tar.gz | tar xz
+curl -L https://github.com/patrickdappollonio/github-authorized-secrets/releases/latest/download/github-authorized-secrets-linux-x86_64.tar.gz | tar xz
 chmod +x github-authorized-secrets
 ```
 
@@ -82,7 +82,7 @@ jobs:
     steps:
       - name: Download secrets client
         run: |
-          curl -L https://github.com/your-org/github-authorized-secrets/releases/latest/download/github-authorized-secrets-linux-x86_64.tar.gz | tar xz
+          curl -L https://github.com/patrickdappollonio/github-authorized-secrets/releases/latest/download/github-authorized-secrets-linux-x86_64.tar.gz | tar xz
           chmod +x github-authorized-secrets
 
       - name: Load secrets
@@ -99,36 +99,16 @@ jobs:
 
 ### Binary Releases
 
-Download pre-built binaries from the [releases page](https://github.com/your-org/github-authorized-secrets/releases):
-
-```bash
-# Linux x86_64
-curl -L https://github.com/your-org/github-authorized-secrets/releases/latest/download/github-authorized-secrets-linux-x86_64.tar.gz | tar xz
-
-# macOS x86_64
-curl -L https://github.com/your-org/github-authorized-secrets/releases/latest/download/github-authorized-secrets-darwin-x86_64.tar.gz | tar xz
-
-# macOS ARM64 (Apple Silicon)
-curl -L https://github.com/your-org/github-authorized-secrets/releases/latest/download/github-authorized-secrets-darwin-arm64.tar.gz | tar xz
-
-# Windows x86_64
-# Download github-authorized-secrets-windows-x86_64.zip and extract
-```
-
-### From Source
-
-Requirements: Rust 1.75+
-
-```bash
-git clone https://github.com/your-org/github-authorized-secrets.git
-cd github-authorized-secrets
-cargo build --release
-```
+Download pre-built binaries from the [releases page](https://github.com/patrickdappollonio/github-authorized-secrets/releases). There are binaries for Linux, macOS, and Windows.
 
 ### Docker
 
 ```bash
-docker pull ghcr.io/your-org/github-authorized-secrets:latest
+# Use stable v1 version (minor and patch changes shouldn't break anything)
+docker pull ghcr.io/patrickdappollonio/github-authorized-secrets:v1
+
+# Or use the latest version
+docker pull ghcr.io/patrickdappollonio/github-authorized-secrets:latest
 ```
 
 ## Configuration
@@ -517,7 +497,7 @@ permissions:
 ```yaml
 - name: Load secrets
   run: |
-    curl -L https://github.com/your-org/github-authorized-secrets/releases/latest/download/github-authorized-secrets-linux-x86_64.tar.gz | tar xz
+    curl -L https://github.com/patrickdappollonio/github-authorized-secrets/releases/latest/download/github-authorized-secrets-linux-x86_64.tar.gz | tar xz
     chmod +x github-authorized-secrets
     ./github-authorized-secrets pull --host secrets.example.com --format bash >> $GITHUB_ENV
   env:
@@ -555,7 +535,7 @@ permissions:
 ### Production Deployment
 
 ```dockerfile
-FROM ghcr.io/your-org/github-authorized-secrets:latest
+FROM ghcr.io/patrickdappollonio/github-authorized-secrets:latest
 
 # Copy your configuration
 COPY config.toml /config/config.toml

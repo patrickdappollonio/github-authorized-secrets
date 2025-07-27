@@ -1,0 +1,29 @@
+# Rust build artifacts
+target/
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+
+# Test data
+test_data/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# CI files
+.github/
+
+# Development files
+docker/
