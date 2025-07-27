@@ -303,7 +303,7 @@ async fn handle_sign_command(
     println!("Key ID: {}", signer.key_id());
     println!();
     println!("To test this token, start the server with --local-testing and use:");
-    println!("  curl -H 'Authorization: Bearer {}' http://{}/secrets", token, server);
+    println!("  curl -X POST -H 'Authorization: Bearer {}' http://{}/secrets", token, server);
 
     Ok(())
 }

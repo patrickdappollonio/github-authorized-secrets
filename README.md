@@ -311,7 +311,7 @@ curl http://localhost:8080/health
 curl http://localhost:8080/.well-known/jwks
 
 # Get secrets using the test token
-curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/secrets
+curl -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8080/secrets
 
 # List repositories
 curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/secrets/repositories
@@ -359,7 +359,7 @@ Tokens expire after 10 minutes by default. Test token validation:
 TOKEN=$(./github-authorized-secrets sign --repository "test/repo" | grep -A1 "Generated JWT Token:" | tail -1)
 
 # Use it immediately (should work)
-curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/secrets
+curl -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8080/secrets
 
 # Wait 11 minutes and try again (should fail with 401)
 ```
@@ -385,7 +385,7 @@ for repo in "github/octocat" "myorg/frontend" "myorg/backend"; do
 
     TOKEN=$(./github-authorized-secrets sign --repository "$repo" | grep -A1 "Generated JWT Token:" | tail -1)
 
-    if curl -f -H "Authorization: Bearer $TOKEN" http://localhost:8080/secrets > /dev/null; then
+    if curl -f -X POST -H "Authorization: Bearer $TOKEN" http://localhost:8080/secrets > /dev/null; then
         echo "✅ $repo: Success"
     else
         echo "❌ $repo: Failed"
