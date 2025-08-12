@@ -22,7 +22,8 @@ pub async fn handle_client_command(config: ClientConfig) -> Result<(), AppError>
 
     // Distinguish between Pull and List commands
     // List commands are called with format=Json, prefix=None, uppercase=false
-    let is_list_command = matches!(config.format, OutputFormat::Json) && config.prefix.is_none() && !config.uppercase;
+    let is_list_command =
+        matches!(config.format, OutputFormat::Json) && config.prefix.is_none() && !config.uppercase;
 
     let result: Result<(), crate::error::ClientError> = if is_list_command {
         // Handle List command
@@ -41,14 +42,20 @@ pub async fn handle_client_command(config: ClientConfig) -> Result<(), AppError>
         }
     } else {
         // Handle Pull command
-        match client.get_secrets_with_auto_auth(config.token.as_deref()).await {
+        match client
+            .get_secrets_with_auto_auth(config.token.as_deref())
+            .await
+        {
             Ok(secrets_response) => {
                 // Mask sensitive values in GitHub Actions logs
                 SecretMasker::mask_secrets(&secrets_response.secrets);
 
                 // Format and output the secrets
-                let formatted_output =
-                    config.format.format_secrets(&secrets_response.secrets, config.prefix.as_deref(), config.uppercase);
+                let formatted_output = config.format.format_secrets(
+                    &secrets_response.secrets,
+                    config.prefix.as_deref(),
+                    config.uppercase,
+                );
 
                 // Handle GitHub Environment file writing
                 if config.github_env && matches!(config.format, OutputFormat::Env) {
