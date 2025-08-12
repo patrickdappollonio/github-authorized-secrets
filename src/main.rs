@@ -122,13 +122,30 @@ async fn main() -> Result<(), AppError> {
             uppercase,
             audience,
             github_env,
-        } => handle_client_command(host, token, format, scheme, prefix, uppercase, audience, github_env).await,
+        } => {
+            handle_client_command(
+                host, token, format, scheme, prefix, uppercase, audience, github_env,
+            )
+            .await
+        }
         Cli::List {
             host,
             token,
             scheme,
             audience,
-        } => handle_client_command(host, token, OutputFormat::Json, scheme, None, false, audience, false).await,
+        } => {
+            handle_client_command(
+                host,
+                token,
+                OutputFormat::Json,
+                scheme,
+                None,
+                false,
+                audience,
+                false,
+            )
+            .await
+        }
         Cli::Sign {
             repository,
             server,
@@ -169,17 +186,27 @@ async fn handle_server_command(
     }
 
     // Validate configuration after CLI flags are applied
-    config.validate_security().map_err(|e| AppError::Config(
-        github_authorized_secrets::error::ConfigError::ValidationError { message: e }
-    ))?;
+    config.validate_security().map_err(|e| {
+        AppError::Config(
+            github_authorized_secrets::error::ConfigError::ValidationError { message: e },
+        )
+    })?;
 
     // Validate server configuration
-    config.server.validate().map_err(|e| AppError::Config(
-        github_authorized_secrets::error::ConfigError::ValidationError { message: e }
-    ))?;
+    config.server.validate().map_err(|e| {
+        AppError::Config(
+            github_authorized_secrets::error::ConfigError::ValidationError { message: e },
+        )
+    })?;
 
-    info!("Starting server on {}:{}", config.server.host, config.server.port);
-    info!("Local testing mode: {}", config.server.is_local_testing_mode());
+    info!(
+        "Starting server on {}:{}",
+        config.server.host, config.server.port
+    );
+    info!(
+        "Local testing mode: {}",
+        config.server.is_local_testing_mode()
+    );
 
     // Run the server
     github_authorized_secrets::server::run_server(config).await
