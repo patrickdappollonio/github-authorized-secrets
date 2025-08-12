@@ -1,7 +1,7 @@
 use clap::Parser;
 use github_authorized_secrets::{
     auth::signing::{create_test_claims, LocalJwks},
-    client::{handle_client_command, OutputFormat},
+    client::{handle_client_command, ClientConfig, OutputFormat},
     config::Config,
     error::AppError,
 };
@@ -123,9 +123,16 @@ async fn main() -> Result<(), AppError> {
             audience,
             github_env,
         } => {
-            handle_client_command(
-                host, token, format, scheme, prefix, uppercase, audience, github_env,
-            )
+            handle_client_command(ClientConfig {
+                host,
+                token,
+                format,
+                scheme,
+                prefix,
+                uppercase,
+                audience,
+                github_env,
+            })
             .await
         }
         Cli::List {
@@ -134,16 +141,16 @@ async fn main() -> Result<(), AppError> {
             scheme,
             audience,
         } => {
-            handle_client_command(
+            handle_client_command(ClientConfig {
                 host,
                 token,
-                OutputFormat::Json,
+                format: OutputFormat::Json,
                 scheme,
-                None,
-                false,
+                prefix: None,
+                uppercase: false,
                 audience,
-                false,
-            )
+                github_env: false,
+            })
             .await
         }
         Cli::Sign {
