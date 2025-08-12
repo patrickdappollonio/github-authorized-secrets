@@ -774,7 +774,10 @@ mod tests {
 
         match result.unwrap_err() {
             AuthError::TokenLifetimeTooLong => {} // Expected for excessively long token lifetime
-            other => panic!("Expected TokenLifetimeTooLong error for long lifetime token, got: {:?}", other),
+            other => panic!(
+                "Expected TokenLifetimeTooLong error for long lifetime token, got: {:?}",
+                other
+            ),
         }
     }
 

@@ -50,15 +50,10 @@ pub struct ValidationConfig {
 impl Default for ValidationConfig {
     fn default() -> Self {
         Self {
-            max_token_age: 300, // 5 minutes
+            max_token_age: 300,        // 5 minutes
             max_token_lifetime: 28800, // 8 hours - default for GitHub Actions OIDC tokens
-            required_claims: vec![
-                "repository".to_string(),
-                "repository_owner".to_string(),
-            ],
-            allowed_issuers: vec![
-                "https://token.actions.githubusercontent.com".to_string(),
-            ],
+            required_claims: vec!["repository".to_string(), "repository_owner".to_string()],
+            allowed_issuers: vec!["https://token.actions.githubusercontent.com".to_string()],
         }
     }
 }
@@ -67,12 +62,12 @@ impl Default for ValidationConfig {
 impl From<crate::config::types::ValidationConfig> for ValidationConfig {
     fn from(config: crate::config::types::ValidationConfig) -> Self {
         Self {
-            required_claims: config.required_claims.unwrap_or_else(|| {
-                vec!["repository".to_string(), "repository_owner".to_string()]
-            }),
-            allowed_issuers: config.allowed_issuers.unwrap_or_else(|| {
-                vec!["https://token.actions.githubusercontent.com".to_string()]
-            }),
+            required_claims: config
+                .required_claims
+                .unwrap_or_else(|| vec!["repository".to_string(), "repository_owner".to_string()]),
+            allowed_issuers: config
+                .allowed_issuers
+                .unwrap_or_else(|| vec!["https://token.actions.githubusercontent.com".to_string()]),
             max_token_age: config.max_token_age.unwrap_or(300) as i64,
             max_token_lifetime: config.max_token_lifetime.unwrap_or(28800) as i64,
         }
