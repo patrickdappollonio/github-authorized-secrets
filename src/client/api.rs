@@ -60,7 +60,10 @@ impl GitHubTokenFetcher {
     /// # Returns
     /// * `Ok(String)` - The JWT token from GitHub Actions
     /// * `Err(ClientError)` - Error if not in GitHub Actions environment or token fetch fails
-    pub async fn fetch_token_with_audience(&self, audience: Option<&str>) -> Result<String, ClientError> {
+    pub async fn fetch_token_with_audience(
+        &self,
+        audience: Option<&str>,
+    ) -> Result<String, ClientError> {
         // Check if we're running in GitHub Actions environment
         let token_url = std::env::var("ACTIONS_ID_TOKEN_REQUEST_URL")
             .map_err(|_| ClientError::NotInGitHubActions)?;
@@ -69,10 +72,7 @@ impl GitHubTokenFetcher {
             .map_err(|_| ClientError::NotInGitHubActions)?;
 
         // Build the request with optional audience parameter
-        let mut request = self
-            .client
-            .get(&token_url)
-            .bearer_auth(&request_token);
+        let mut request = self.client.get(&token_url).bearer_auth(&request_token);
 
         // Add audience parameter if provided
         if let Some(aud) = audience {
@@ -203,7 +203,11 @@ impl ApiClient {
     ) -> Result<SecretsResponse, ClientError> {
         let auth_token = match token {
             Some(t) => t.to_string(),
-            None => self.token_fetcher.fetch_token_with_audience(self.audience.as_deref()).await?,
+            None => {
+                self.token_fetcher
+                    .fetch_token_with_audience(self.audience.as_deref())
+                    .await?
+            }
         };
 
         self.get_secrets(&auth_token).await
@@ -253,7 +257,11 @@ impl ApiClient {
     ) -> Result<RepositoryListResponse, ClientError> {
         let auth_token = match token {
             Some(t) => t.to_string(),
-            None => self.token_fetcher.fetch_token_with_audience(self.audience.as_deref()).await?,
+            None => {
+                self.token_fetcher
+                    .fetch_token_with_audience(self.audience.as_deref())
+                    .await?
+            }
         };
 
         self.list_repositories(&auth_token).await

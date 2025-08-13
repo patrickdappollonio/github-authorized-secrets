@@ -1,3 +1,3 @@
 pub mod store;
 
-pub use store::{SecretStore, SecretsResponse, SecretsMetadata, RepositoryListResponse};
+pub use store::{RepositoryListResponse, SecretStore, SecretsMetadata, SecretsResponse};
