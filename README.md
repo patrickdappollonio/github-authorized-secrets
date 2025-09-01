@@ -1,5 +1,7 @@
 # GitHub Authorized Secrets
 
+[![Github Downloads](https://img.shields.io/github/downloads/patrickdappollonio/github-authorized-secrets/total?color=orange&label=github%20downloads)](https://github.com/patrickdappollonio/github-authorized-secrets/releases)
+
 A secure secret management system for GitHub Actions workflows that validates GitHub Actions JWT tokens and returns repository-specific secrets.
 
 ## Overview
