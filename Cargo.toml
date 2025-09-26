@@ -58,7 +58,7 @@ regex = "1.11"
 zeroize = { version = "1.7", features = ["derive"] }
 
 # JWT signing (for local testing)
-rsa = "0.10.0-rc.5"
+rsa = "0.10.0-rc.8"
 rand = "0.9.2"
 uuid = { version = "1.18", features = ["v4"] }
 base64 = "0.22"
