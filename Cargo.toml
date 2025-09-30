@@ -55,7 +55,7 @@ chrono = { version = "0.4", features = ["serde"] }
 
 # Security
 regex = "1.11"
-zeroize = { version = "1.7", features = ["derive"] }
+zeroize = { version = "1.8", features = ["derive"] }
 
 # JWT signing (for local testing)
 rsa = "0.10.0-rc.8"
