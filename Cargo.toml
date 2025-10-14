@@ -54,7 +54,7 @@ thiserror = "2.0.17"
 chrono = { version = "0.4", features = ["serde"] }
 
 # Security
-regex = "1.11"
+regex = "1.12"
 zeroize = { version = "1.8", features = ["derive"] }
 
 # JWT signing (for local testing)
